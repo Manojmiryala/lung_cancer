@@ -1,0 +1,2371 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lung Cancer Detection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.6);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            color: #00d4ff;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            margin-right: 10px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #00d4ff;
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #00aacc;
+            color: #fff;
+        }
+
+        .img-preview {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .img-preview div {
+            text-align: center;
+            margin: 10px;
+        }
+
+        .img-preview img {
+            max-width: 400px;
+            border-radius: 12px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        h3 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.8rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge.normal { background: #28a745; color: #fff; }   /* Green */
+        .badge.benign { background: #ffc107; color: #000; }  /* Yellow/Orange */
+        .badge.malignant { background: #dc3545; color: #fff; } /* Red */
+
+        .prob-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 60%;
+            text-align: center;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .prob-table th, .prob-table td {
+            border: 1px solid #00d4ff;
+            padding: 12px;
+        }
+
+        .prob-table th {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .prob-table td {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Lung Cancer Detection</h2>
+        <form id="upload-form" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*" required>
+            <button type="submit">Predict</button>
+        </form>
+        <div class="result" id="result">
+            {% if result %}
+                <div class="img-preview">
+                    <div>
+                        <b>Uploaded Image:</b><br>
+                        <img src="{{ result.image_path }}" alt="Uploaded Image">
+                    </div>
+                    <div>
+                        <b>ROI Used for Prediction:</b><br>
+                        <img src="{{ result.roi_path }}" alt="ROI Image">
+                    </div>
+                </div>
+                <h3>
+                    Prediction: {{ result.prediction }}
+                    <span class="badge {{ result.prediction|lower }}">{{ result.prediction }}</span>
+                </h3>
+                <table class="prob-table">
+                    <tr><th>Class</th><th>Probability</th></tr>
+                    {% for label, prob in result.probabilities.items() %}
+                    <tr>
+                        <td>{{ label }}</td>
+                        <td>{{ '%.4f'|format(prob) }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await response.json();
+            let html = '';
+            if (data.prediction) {
+                let badgeClass = data.prediction.toLowerCase();
+                html += `<div class="img-preview">`;
+                html += `<div><b>Uploaded Image:</b><br><img src="${data.image_path}" alt="Uploaded Image"></div>`;
+                html += `<div><b>ROI Used for Prediction:</b><br><img src="${data.roi_path}" alt="ROI Image"></div>`;
+                html += `</div>`;
+                html += `<h3>Prediction: ${data.prediction} <span class="badge ${badgeClass}">${data.prediction}</span></h3>`;
+                html += `<table class="prob-table"><tr><th>Class</th><th>Probability</th></tr>`;
+                for (const [label, prob] of Object.entries(data.probabilities)) {
+                    html += `<tr><td>${label}</td><td>${prob.toFixed(4)}</td></tr>`;
+                }
+                html += `</table>`;
+            } else if (data.error) {
+                html = `<span style="color:red;">Error: ${data.error}</span>`;
+            }
+            document.getElementById('result').innerHTML = html;
+        };
+    </script>
+</body>
+</html> -->
+
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lung Cancer Detection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.6);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            color: #00d4ff;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            margin-right: 10px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #00d4ff;
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #00aacc;
+            color: #fff;
+        }
+
+        .img-preview {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .img-preview div {
+            text-align: center;
+            margin: 10px;
+        }
+
+        .img-preview img {
+            max-width: 400px;
+            border-radius: 12px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        h3 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.8rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge.normal { background: #28a745; color: #fff; }   /* Green */
+        .badge.benign { background: #ffc107; color: #000; }  /* Yellow/Orange */
+        .badge.malignant { background: #dc3545; color: #fff; } /* Red */
+
+        .prob-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 60%;
+            text-align: center;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .prob-table th, .prob-table td {
+            border: 1px solid #00d4ff;
+            padding: 12px;
+        }
+
+        .prob-table th {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .prob-table td {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Lung Cancer Detection</h2>
+        <form id="upload-form" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*" required>
+            <button type="submit">Predict</button>
+        </form>
+        <div class="result" id="result">
+            {% if result %}
+                <div class="img-preview">
+                    <div>
+                        <b>Uploaded Image:</b><br>
+                        <img src="{{ result.image_path }}" alt="Uploaded Image">
+                    </div>
+                    <div>
+                        <b>ROI Used for Prediction:</b><br>
+                        <img src="{{ result.roi_path }}" alt="ROI Image">
+                    </div>
+                </div>
+                <h3>
+                    Prediction: {{ result.prediction }}
+                    <span class="badge {{ result.prediction|lower }}">{{ result.prediction }}</span>
+                </h3>
+                <table class="prob-table">
+                    <tr><th>Class</th><th>Probability</th></tr>
+                    {% for label, prob in result.probabilities.items() %}
+                    <tr>
+                        <td>{{ label }}</td>
+                        <td>{{ '%.4f'|format(prob) }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await response.json();
+            let html = '';
+            if (data.prediction) {
+                let badgeClass = data.prediction.toLowerCase();
+                html += `<div class="img-preview">`;
+                html += `<div><b>Uploaded Image:</b><br><img src="${data.image_path}" alt="Uploaded Image"></div>`;
+                html += `<div><b>ROI Used for Prediction:</b><br><img src="${data.roi_path}" alt="ROI Image"></div>`;
+                html += `</div>`;
+                html += `<h3>Prediction: ${data.prediction} <span class="badge ${badgeClass}">${data.prediction}</span></h3>`;
+                html += `<table class="prob-table"><tr><th>Class</th><th>Probability</th></tr>`;
+                for (const [label, prob] of Object.entries(data.probabilities)) {
+                    html += `<tr><td>${label}</td><td>${prob.toFixed(4)}</td></tr>`;
+                }
+                html += `</table>`;
+            } else if (data.error) {
+                html = `<span style="color:red;">Error: ${data.error}</span>`;
+            }
+            document.getElementById('result').innerHTML = html;
+        };
+    </script>
+</body>
+</html> -->
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lung Cancer Detection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.6);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            color: #00d4ff;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            margin-right: 10px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #00d4ff;
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #00aacc;
+            color: #fff;
+        }
+
+        .img-preview {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .img-preview div {
+            text-align: center;
+            margin: 10px;
+        }
+
+        .img-preview img {
+            max-width: 400px;
+            border-radius: 12px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        h3 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.8rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge.normal { background: #28a745; color: #fff; }   /* Green */
+        .badge.benign { background: #ffc107; color: #000; }  /* Yellow/Orange */
+        .badge.malignant { background: #dc3545; color: #fff; } /* Red */
+
+        .prob-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 60%;
+            text-align: center;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .prob-table th, .prob-table td {
+            border: 1px solid #00d4ff;
+            padding: 12px;
+        }
+
+        .prob-table th {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .prob-table td {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Lung Cancer Detection</h2>
+        <form id="upload-form" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*" required>
+            <button type="submit">Predict</button>
+        </form>
+        <div class="result" id="result">
+            {% if result %}
+                <div class="img-preview">
+                    <div>
+                        <b>Uploaded Image:</b><br>
+                        <img src="{{ result.image_path }}" alt="Uploaded Image">
+                    </div>
+                    <div>
+                        <b>ROI Used for Prediction:</b><br>
+                        <img src="{{ result.roi_path }}" alt="ROI Image">
+                    </div>
+                </div>
+                <h3>
+                    Prediction: {{ result.prediction }}
+                    <span class="badge {{ result.prediction|lower }}">{{ result.prediction }}</span>
+                </h3>
+                <table class="prob-table">
+                    <tr><th>Class</th><th>Probability</th></tr>
+                    {% for label, prob in result.probabilities.items() %}
+                    <tr>
+                        <td>{{ label }}</td>
+                        <td>{{ '%.4f'|format(prob) }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await response.json();
+            let html = '';
+            if (data.prediction) {
+                let badgeClass = data.prediction.toLowerCase();
+                html += `<div class="img-preview">`;
+                html += `<div><b>Uploaded Image:</b><br><img src="${data.image_path}" alt="Uploaded Image"></div>`;
+                html += `<div><b>ROI Used for Prediction:</b><br><img src="${data.roi_path}" alt="ROI Image"></div>`;
+                html += `</div>`;
+                html += `<h3>Prediction: ${data.prediction} <span class="badge ${badgeClass}">${data.prediction}</span></h3>`;
+                html += `<table class="prob-table"><tr><th>Class</th><th>Probability</th></tr>`;
+                for (const [label, prob] of Object.entries(data.probabilities)) {
+                    html += `<tr><td>${label}</td><td>${prob.toFixed(4)}</td></tr>`;
+                }
+                html += `</table>`;
+            } else if (data.error) {
+                html = `<span style="color:red;">Error: ${data.error}</span>`;
+            }
+            document.getElementById('result').innerHTML = html;
+        };
+    </script>
+</body>
+</html> -->
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lung Cancer Detection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.6);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            color: #00d4ff;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            margin-right: 10px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #00d4ff;
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #00aacc;
+            color: #fff;
+        }
+
+        .img-preview {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .img-preview div {
+            text-align: center;
+            margin: 10px;
+        }
+
+        .img-preview img {
+            max-width: 400px;
+            border-radius: 12px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        h3 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.8rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge.normal { background: #28a745; color: #fff; }   /* Green */
+        .badge.benign { background: #ffc107; color: #000; }  /* Yellow/Orange */
+        .badge.malignant { background: #dc3545; color: #fff; } /* Red */
+
+        .prob-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 60%;
+            text-align: center;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .prob-table th, .prob-table td {
+            border: 1px solid #00d4ff;
+            padding: 12px;
+        }
+
+        .prob-table th {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .prob-table td {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Lung Cancer Detection</h2>
+        <form id="upload-form" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*" required>
+            <button type="submit">Predict</button>
+        </form>
+        <div class="result" id="result">
+            {% if result %}
+                <div class="img-preview">
+                    <div>
+                        <b>Uploaded Image:</b><br>
+                        <img src="{{ result.image_path }}" alt="Uploaded Image">
+                    </div>
+                    <div>
+                        <b>ROI Used for Prediction:</b><br>
+                        <img src="{{ result.roi_path }}" alt="ROI Image">
+                    </div>
+                </div>
+                <h3>
+                    Prediction: {{ result.prediction }}
+                    <span class="badge {{ result.prediction|lower }}">{{ result.prediction }}</span>
+                </h3>
+                <table class="prob-table">
+                    <tr><th>Class</th><th>Probability</th></tr>
+                    {% for label, prob in result.probabilities.items() %}
+                    <tr>
+                        <td>{{ label }}</td>
+                        <td>{{ '%.4f'|format(prob) }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await response.json();
+            let html = '';
+            if (data.prediction) {
+                let badgeClass = data.prediction.toLowerCase();
+                html += `<div class="img-preview">`;
+                html += `<div><b>Uploaded Image:</b><br><img src="${data.image_path}" alt="Uploaded Image"></div>`;
+                html += `<div><b>ROI Used for Prediction:</b><br><img src="${data.roi_path}" alt="ROI Image"></div>`;
+                html += `</div>`;
+                html += `<h3>Prediction: ${data.prediction} <span class="badge ${badgeClass}">${data.prediction}</span></h3>`;
+                html += `<table class="prob-table"><tr><th>Class</th><th>Probability</th></tr>`;
+                for (const [label, prob] of Object.entries(data.probabilities)) {
+                    html += `<tr><td>${label}</td><td>${prob.toFixed(4)}</td></tr>`;
+                }
+                html += `</table>`;
+            } else if (data.error) {
+                html = `<span style="color:red;">Error: ${data.error}</span>`;
+            }
+            document.getElementById('result').innerHTML = html;
+        };
+    </script>
+</body>
+</html> -->
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lung Cancer Detection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.6);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            color: #00d4ff;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            margin-right: 10px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #00d4ff;
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #00aacc;
+            color: #fff;
+        }
+
+        .img-preview {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .img-preview div {
+            text-align: center;
+            margin: 10px;
+        }
+
+        .img-preview img {
+            max-width: 400px;
+            border-radius: 12px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        h3 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.8rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge.normal { background: #28a745; color: #fff; }   /* Green */
+        .badge.benign { background: #ffc107; color: #000; }  /* Yellow/Orange */
+        .badge.malignant { background: #dc3545; color: #fff; } /* Red */
+
+        .prob-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 60%;
+            text-align: center;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .prob-table th, .prob-table td {
+            border: 1px solid #00d4ff;
+            padding: 12px;
+        }
+
+        .prob-table th {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .prob-table td {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Lung Cancer Detection</h2>
+        <form id="upload-form" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*" required>
+            <button type="submit">Predict</button>
+        </form>
+        <div class="result" id="result">
+            {% if result %}
+                <div class="img-preview">
+                    <div>
+                        <b>Uploaded Image:</b><br>
+                        <img src="{{ result.image_path }}" alt="Uploaded Image">
+                    </div>
+                    <div>
+                        <b>ROI Used for Prediction:</b><br>
+                        <img src="{{ result.roi_path }}" alt="ROI Image">
+                    </div>
+                </div>
+                <h3>
+                    Prediction: {{ result.prediction }}
+                    <span class="badge {{ result.prediction|lower }}">{{ result.prediction }}</span>
+                </h3>
+                <table class="prob-table">
+                    <tr><th>Class</th><th>Probability</th></tr>
+                    {% for label, prob in result.probabilities.items() %}
+                    <tr>
+                        <td>{{ label }}</td>
+                        <td>{{ '%.4f'|format(prob) }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await response.json();
+            let html = '';
+            if (data.prediction) {
+                let badgeClass = data.prediction.toLowerCase();
+                html += `<div class="img-preview">`;
+                html += `<div><b>Uploaded Image:</b><br><img src="${data.image_path}" alt="Uploaded Image"></div>`;
+                html += `<div><b>ROI Used for Prediction:</b><br><img src="${data.roi_path}" alt="ROI Image"></div>`;
+                html += `</div>`;
+                html += `<h3>Prediction: ${data.prediction} <span class="badge ${badgeClass}">${data.prediction}</span></h3>`;
+                html += `<table class="prob-table"><tr><th>Class</th><th>Probability</th></tr>`;
+                for (const [label, prob] of Object.entries(data.probabilities)) {
+                    html += `<tr><td>${label}</td><td>${prob.toFixed(4)}</td></tr>`;
+                }
+                html += `</table>`;
+            } else if (data.error) {
+                html = `<span style="color:red;">Error: ${data.error}</span>`;
+            }
+            document.getElementById('result').innerHTML = html;
+        };
+    </script>
+</body>
+</html>
+ -->
+
+<!-- 
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lung Cancer Detection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            background: 
+                linear-gradient(to right, rgba(20, 30, 48, 0.85), rgba(36, 59, 85, 0.85)),
+                url('https://images.unsplash.com/photo-1504439468489-c8920d796a29?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80') 
+                no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(0, 0, 0, 0.65);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.6);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            color: #00d4ff;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            margin-right: 10px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #00d4ff;
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #00aacc;
+            color: #fff;
+        }
+
+        .img-preview {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .img-preview div {
+            text-align: center;
+            margin: 10px;
+        }
+
+        .img-preview img {
+            max-width: 400px;
+            border-radius: 12px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        h3 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.8rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge.normal { background: #28a745; color: #fff; }   /* Green */
+        .badge.benign { background: #ffc107; color: #000; }  /* Yellow/Orange */
+        .badge.malignant { background: #dc3545; color: #fff; } /* Red */
+
+        .prob-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 60%;
+            text-align: center;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .prob-table th, .prob-table td {
+            border: 1px solid #00d4ff;
+            padding: 12px;
+        }
+
+        .prob-table th {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .prob-table td {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Lung Cancer Detection</h2>
+        <form id="upload-form" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*" required>
+            <button type="submit">Predict</button>
+        </form>
+        <div class="result" id="result">
+            {% if result %}
+                <div class="img-preview">
+                    <div>
+                        <b>Uploaded Image:</b><br>
+                        <img src="{{ result.image_path }}" alt="Uploaded Image">
+                    </div>
+                    <div>
+                        <b>ROI Used for Prediction:</b><br>
+                        <img src="{{ result.roi_path }}" alt="ROI Image">
+                    </div>
+                </div>
+                <h3>
+                    Prediction: {{ result.prediction }}
+                    <span class="badge {{ result.prediction|lower }}">{{ result.prediction }}</span>
+                </h3>
+                <table class="prob-table">
+                    <tr><th>Class</th><th>Probability</th></tr>
+                    {% for label, prob in result.probabilities.items() %}
+                    <tr>
+                        <td>{{ label }}</td>
+                        <td>{{ '%.4f'|format(prob) }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await response.json();
+            let html = '';
+            if (data.prediction) {
+                let badgeClass = data.prediction.toLowerCase();
+                html += `<div class="img-preview">`;
+                html += `<div><b>Uploaded Image:</b><br><img src="${data.image_path}" alt="Uploaded Image"></div>`;
+                html += `<div><b>ROI Used for Prediction:</b><br><img src="${data.roi_path}" alt="ROI Image"></div>`;
+                html += `</div>`;
+                html += `<h3>Prediction: ${data.prediction} <span class="badge ${badgeClass}">${data.prediction}</span></h3>`;
+                html += `<table class="prob-table"><tr><th>Class</th><th>Probability</th></tr>`;
+                for (const [label, prob] of Object.entries(data.probabilities)) {
+                    html += `<tr><td>${label}</td><td>${prob.toFixed(4)}</td></tr>`;
+                }
+                html += `</table>`;
+            } else if (data.error) {
+                html = `<span style="color:red;">Error: ${data.error}</span>`;
+            }
+            document.getElementById('result').innerHTML = html;
+        };
+    </script>
+</body>
+</html> --> -->
+
+<!-- 
+
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lung Cancer Detection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            background: 
+                linear-gradient(135deg, rgba(255,0,150,0.35), rgba(0,204,255,0.35), rgba(0,255,128,0.35)),
+                linear-gradient(to right, rgba(20, 30, 48, 0.85), rgba(36, 59, 85, 0.85)),
+                url('https://images.unsplash.com/photo-1504439468489-c8920d796a29?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80') 
+                no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(0, 0, 0, 0.65);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.6);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            color: #00d4ff;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            margin-right: 10px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: linear-gradient(90deg, #ff00cc, #3333ff, #00ffff);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, #00ffff, #3333ff, #ff00cc);
+            color: #fff;
+        }
+
+        .img-preview {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .img-preview div {
+            text-align: center;
+            margin: 10px;
+        }
+
+        .img-preview img {
+            max-width: 400px;
+            border-radius: 12px;
+            border: 3px solid #00d4ff;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+
+        h3 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.8rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge.normal { background: linear-gradient(90deg, #00ff7f, #28a745); color: #fff; }
+        .badge.benign { background: linear-gradient(90deg, #ffc107, #ff8c00); color: #000; }
+        .badge.malignant { background: linear-gradient(90deg, #ff4b2b, #dc3545); color: #fff; }
+
+        .prob-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 70%;
+            text-align: center;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .prob-table th, .prob-table td {
+            border: 1px solid #00d4ff;
+            padding: 12px;
+        }
+
+        .prob-table th {
+            background: linear-gradient(90deg, #00ffff, #00d4ff);
+            color: #000;
+        }
+
+        .prob-table td {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Lung Cancer Detection</h2>
+        <form id="upload-form" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept="image/*" required>
+            <button type="submit">Predict</button>
+        </form>
+        <div class="result" id="result">
+            {% if result %}
+                <div class="img-preview">
+                    <div>
+                        <b>Uploaded Image:</b><br>
+                        <img src="{{ result.image_path }}" alt="Uploaded Image">
+                    </div>
+                    <div>
+                        <b>ROI Used for Prediction:</b><br>
+                        <img src="{{ result.roi_path }}" alt="ROI Image">
+                    </div>
+                </div>
+                <h3>
+                    Prediction: {{ result.prediction }}
+                    <span class="badge {{ result.prediction|lower }}">{{ result.prediction }}</span>
+                </h3>
+                <table class="prob-table">
+                    <tr>
+                        <th>Class</th>
+                        <th>Probability</th>
+                        <th>Range</th>
+                    </tr>
+                    {% for label, prob in result.probabilities.items() %}
+                    <tr>
+                        <td>{{ label }}</td>
+                        <td>{{ '%.4f'|format(prob) }}</td>
+                        <td>
+                            {% if label == 'Normal' %}
+                                0.00 - 0.40
+                            {% elif label == 'Benign' %}
+                                0.41 - 0.70
+                            {% elif label == 'Malignant' %}
+                                0.71 - 1.00
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData,
+                headers: {'X-Requested-With': 'XMLHttpRequest'}
+            });
+            const data = await response.json();
+            let html = '';
+            if (data.prediction) {
+                let badgeClass = data.prediction.toLowerCase();
+                html += `<div class="img-preview">`;
+                html += `<div><b>Uploaded Image:</b><br><img src="${data.image_path}" alt="Uploaded Image"></div>`;
+                html += `<div><b>ROI Used for Prediction:</b><br><img src="${data.roi_path}" alt="ROI Image"></div>`;
+                html += `</div>`;
+                html += `<h3>Prediction: ${data.prediction} <span class="badge ${badgeClass}">${data.prediction}</span></h3>`;
+                html += `<table class="prob-table"><tr><th>Class</th><th>Probability</th><th>Range</th></tr>`;
+                for (const [label, prob] of Object.entries(data.probabilities)) {
+                    let range = '';
+                    if (label === 'Normal') range = '0.00 - 0.40';
+                    else if (label === 'Benign') range = '0.41 - 0.70';
+                    else if (label === 'Malignant') range = '0.71 - 1.00';
+                    html += `<tr><td>${label}</td><td>${prob.toFixed(4)}</td><td>${range}</td></tr>`;
+                }
+                html += `</table>`;
+            } else if (data.error) {
+                html = `<span style="color:red;">Error: ${data.error}</span>`;
+            }
+            document.getElementById('result').innerHTML = html;
+        };
+    </script>
+</body>
+</html>  -->
+
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lung Cancer Detection</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            background:
+              linear-gradient(to right, rgba(20, 30, 48, 0.85), rgba(36, 59, 85, 0.85)),
+              url('https://images.unsplash.com/photo-1504439468489-c8920d796a29?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80')
+              no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            background: rgba(0, 0, 0, 0.65);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.6);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            color: #00d4ff;
+        }
+
+        form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            background: #fff;
+            border-radius: 8px;
+            margin-right: 10px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #00d4ff;
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #00aacc;
+            color: #fff;
+        }
+
+        .img-preview {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .img-preview div {
+            text-align: center;
+            margin: 10px;
+        }
+
+        .img-preview img {
+            max-width: 400px;
+            border-radius: 12px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        /* ARROW STYLE */
+        .arrow {
+            font-size: 48px;
+            color: #00d4ff;
+            margin: 0 20px;
+            animation: arrowBlink 1.5s infinite;
+        }
+
+        @keyframes arrowBlink {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        h3 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.8rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge.normal { background: #28a745; color: #fff; }
+        .badge.benign { background: #ffc107; color: #000; }
+        .badge.malignant { background: #dc3545; color: #fff; }
+
+        .prob-table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 70%;
+            text-align: center;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .prob-table th, .prob-table td {
+            border: 1px solid #00d4ff;
+            padding: 12px;
+        }
+
+        .prob-table th {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .prob-table td {
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Lung Cancer Detection</h2>
+
+    <form id="upload-form" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept="image/*" required>
+        <button type="submit">Predict</button>
+    </form>
+
+    <div class="result" id="result">
+
+        {% if result %}
+        <div class="img-preview">
+            <div>
+                <b>Uploaded Lung Image</b><br>
+                <img src="{{ result.image_url }}" alt="Uploaded Image">
+            </div>
+
+            <div class="arrow">➡️</div>
+
+            <div>
+                <b>ROI Extracted Area</b><br>
+                <img src="{{ result.roi_url }}" alt="ROI Image">
+            </div>
+        </div>
+
+        <h3>
+            Prediction: {{ result.prediction }}
+            <span class="badge {{ result.prediction|lower }}">{{ result.prediction }}</span>
+        </h3>
+
+        <table class="prob-table">
+            <tr><th>Class</th><th>Probability</th><th>Range</th></tr>
+            {% for label, prob in result.probabilities.items() %}
+            <tr>
+                <td>{{ label }}</td>
+                <td>{{ '%.4f'|format(prob) }}</td>
+                <td>
+                    {% if label == 'Normal' %}0.00 - 0.40
+                    {% elif label == 'Benign' %}0.41 - 0.70
+                    {% else %}0.71 - 1.00
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+document.getElementById('upload-form').onsubmit = async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const response = await fetch('/predict', {
+        method: 'POST',
+        body: formData,
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+    });
+    const data = await response.json();
+
+    let html = '';
+    if (data.prediction) {
+        let badgeClass = data.prediction.toLowerCase();
+
+        html += `
+        <div class="img-preview">
+            <div>
+                <b>Uploaded Lung Image</b><br>
+                <img src="${data.image_url}">
+            </div>
+
+            <div class="arrow">➡️</div>
+
+            <div>
+                <b>ROI Extracted Area</b><br>
+                <img src="${data.roi_url}">
+            </div>
+        </div>
+
+        <h3>
+            Prediction: ${data.prediction}
+            <span class="badge ${badgeClass}">${data.prediction}</span>
+        </h3>
+
+        <table class="prob-table">
+            <tr><th>Class</th><th>Probability</th><th>Range</th></tr>
+        `;
+
+        for (const [label, prob] of Object.entries(data.probabilities)) {
+            let range = label === 'Normal' ? '0.00 - 0.40' :
+                        label === 'Benign' ? '0.41 - 0.70' : '0.71 - 1.00';
+            html += `<tr><td>${label}</td><td>${prob.toFixed(4)}</td><td>${range}</td></tr>`;
+        }
+
+        html += `</table>`;
+    } else if (data.error) {
+        html = `<span style="color:red;">Error: ${data.error}</span>`;
+    }
+
+    document.getElementById('result').innerHTML = html;
+};
+</script>
+
+</body>
+</html> 
+
+
+
+
+
+
+ 
+    -->
+
+
+
+
+
+    
+    
+<!--      
+
+     <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lung Cancer Detection</title>
+
+<style>
+body{
+    margin:0;
+    font-family:"Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background:
+        linear-gradient(135deg, rgba(0,180,216,0.25), rgba(72,202,228,0.25)),
+        linear-gradient(to right, #e0f7fa, #f1faff);
+    min-height:100vh;
+}
+
+.container{
+    max-width:1100px;
+    margin:40px auto;
+    background:rgba(255,255,255,0.92);
+    padding:30px;
+    border-radius:22px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.2);
+}
+
+h2{
+    text-align:center;
+    color:#003049;
+    margin-bottom:25px;
+    letter-spacing:1.5px;
+}
+
+form{
+    text-align:center;
+    margin-bottom:25px;
+}
+
+input[type=file]{
+    padding:8px;
+    border-radius:6px;
+    border:1px solid #aaa;
+}
+
+button{
+    padding:9px 22px;
+    background:linear-gradient(90deg,#00b4d8,#0077b6);
+    border:none;
+    border-radius:8px;
+    font-weight:bold;
+    color:#fff;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+button:hover{
+    background:linear-gradient(90deg,#0077b6,#00b4d8);
+}
+
+.output{
+    text-align:center;
+}
+
+.filename{
+    font-weight:bold;
+    font-size:18px;
+    margin-bottom:20px;
+    color:#023047;
+}
+
+.images{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:35px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+}
+
+.img-box{
+    text-align:center;
+}
+
+.img-box img{
+    width:320px;
+    height:auto;
+    border-radius:16px;
+    border:4px solid #0096c7;
+    box-shadow:0 8px 20px rgba(0,0,0,0.25);
+}
+
+.roi img{
+    width:160px;
+}
+
+.label{
+    margin-top:10px;
+    font-weight:bold;
+    color:#003049;
+}
+
+.arrow{
+    font-size:50px;
+    font-weight:bold;
+    color:#0096c7;
+}
+
+.prediction{
+    font-size:22px;
+    margin-top:18px;
+    color:#003049;
+}
+
+.badge{
+    background:linear-gradient(90deg,#ffd60a,#ffb703);
+    padding:6px 18px;
+    border-radius:25px;
+    font-weight:bold;
+    color:#000;
+}
+
+.prob{
+    margin-top:8px;
+    font-weight:bold;
+    color:#003049;
+}
+
+h3{
+    margin-top:25px;
+    color:#003049;
+}
+
+table{
+    width:70%;
+    margin:20px auto;
+    border-collapse:collapse;
+    background:#ffffff;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+th{
+    background:linear-gradient(90deg,#90e0ef,#48cae4);
+    padding:12px;
+    border:1px solid #0096c7;
+    color:#000;
+}
+
+td{
+    padding:12px;
+    border:1px solid #0096c7;
+    color:#000;
+}
+
+/* ❌ Removed highlight color completely */
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Lung Cancer Detection System</h2>
+
+<form id="upload-form" enctype="multipart/form-data">
+    <input type="file" id="fileInput" name="file" accept=".jpg" required>
+    <button type="submit">Predict</button>
+</form>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+document.getElementById("upload-form").onsubmit = async function(e){
+    e.preventDefault();
+
+    const file = document.getElementById("fileInput").files[0];
+    const cleanName = file.name.match(/\d+\.jpg/i)?.[0] || file.name;
+
+    document.getElementById("result").innerHTML = `
+        <div class="filename">Uploaded File: ${cleanName}</div>
+        <div>Processing...</div>
+    `;
+
+    const formData = new FormData(this);
+
+    const res = await fetch("/predict",{
+        method:"POST",
+        body:formData,
+        headers:{'X-Requested-With':'XMLHttpRequest'}
+    });
+
+    const data = await res.json();
+    if(data.error){
+        document.getElementById("result").innerHTML = data.error;
+        return;
+    }
+
+    setTimeout(()=>{
+        document.getElementById("result").innerHTML = `
+        <div class="output">
+
+            <div class="filename">Uploaded File: ${cleanName}</div>
+
+            <div class="images">
+                <div class="img-box">
+                    <img src="${data.image_path}">
+                    <div class="label">Original CT Image</div>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div class="img-box roi">
+                    <img src="${data.roi_path}">
+                    <div class="label">Detected ROI</div>
+                </div>
+            </div>
+
+            <div class="prediction">
+                Prediction: <span class="badge">${data.prediction}</span>
+            </div>
+
+            <div class="prob">
+                Probability: ${Math.max(
+                    data.probabilities.Normal,
+                    data.probabilities.Benign,
+                    data.probabilities.Malignant
+                ).toFixed(3)}
+            </div>
+
+            <h3>Probability Ranges</h3>
+
+            <table>
+                <tr>
+                    <th>Class</th>
+                    <th>Probability Range</th>
+                </tr>
+                <tr>
+                    <td>Normal</td>
+                    <td>0.000 – 0.400</td>
+                </tr>
+                <tr>
+                    <td>Benign</td>
+                    <td>0.401 – 0.700</td>
+                </tr>
+                <tr>
+                    <td>Malignant</td>
+                    <td>0.701 – 1.000</td>
+                </tr>
+            </table>
+
+        </div>
+        `;
+    },5000);
+};
+</script>
+
+</body>
+</html> -->
+
+
+
+
+ -->
+
+
+
+<!-- 
+
+ <!DOCTYPE html>
+<html>
+<head>
+<title>Lung Cancer Detection</title>
+
+<style>
+body{
+margin:0;
+font-family:'Segoe UI';
+background:#ffffff;
+color:#333;
+}
+
+.container{
+width:85%;
+margin:40px auto;
+background:#ffffff;
+padding:30px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+h2{ color:#2e7d32; }
+
+input,select{
+padding:12px;
+margin:10px;
+border-radius:8px;
+border:1px solid #ccc;
+background:#f5f5f5;
+}
+
+button{
+padding:12px 25px;
+background:linear-gradient(45deg,#4CAF50,#81C784);
+border:none;
+border-radius:10px;
+color:white;
+cursor:pointer;
+}
+
+img{
+width:280px;
+border-radius:15px;
+margin:10px;
+}
+
+table{
+margin:auto;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+td,th{
+border:1px solid #ccc;
+padding:12px;
+}
+
+th{
+background:#4CAF50;
+color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🧠 Lung Cancer Detection System</h2>
+
+<form method="POST" action="/predict" enctype="multipart/form-data">
+
+<h3>👤 Patient Details</h3>
+
+<input name="name" placeholder="Patient Name" required>
+<input name="age" placeholder="Age" required>
+
+<select name="gender">
+<option>Male</option>
+<option>Female</option>
+<option>Other</option>
+</select>
+
+<br><br>
+
+<input type="file" name="file" required><br><br>
+
+<button>🔍 Predict</button>
+
+</form>
+
+{% if prediction %}
+
+<h2>Prediction: {{prediction}}</h2>
+<h3>Probability: {{probability}}</h3>
+
+<img src="/{{image}}">
+<img src="/{{roi}}">
+<br><br>
+
+<button onclick="downloadHistory()">
+📥 Download Patient History
+</button>
+
+<h3>Probability Range</h3>
+
+<table>
+<tr><th>Class</th><th>Range</th></tr>
+<tr><td>Normal</td><td>0.000 – 0.400</td></tr>
+<tr><td>Benign</td><td>0.401 – 0.700</td></tr>
+<tr><td>Malignant</td><td>0.701 – 1.000</td></tr>
+</table>
+
+{% endif %}
+
+</div>
+
+</body>
+</html> -->
+
+
+<!-- 
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lung Cancer Detection</title>
+
+<style>
+body{
+margin:0;
+font-family:'Segoe UI';
+background:#ffffff;
+color:#333;
+}
+
+.container{
+width:85%;
+margin:40px auto;
+background:#ffffff;
+padding:30px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+h2{
+color:#2e7d32;
+}
+
+input,select{
+padding:12px;
+margin:10px;
+border-radius:8px;
+border:1px solid #ccc;
+background:#f5f5f5;
+}
+
+button{
+padding:12px 25px;
+background:linear-gradient(45deg,#4CAF50,#81C784);
+border:none;
+border-radius:10px;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:linear-gradient(45deg,#388E3C,#66BB6A);
+}
+
+img{
+width:280px;
+border-radius:15px;
+margin:10px;
+}
+
+table{
+margin:auto;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+td,th{
+border:1px solid #ccc;
+padding:12px;
+}
+
+th{
+background:#4CAF50;
+color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🧠 Lung Cancer Detection System</h2>
+
+<form method="POST" action="/predict" enctype="multipart/form-data">
+
+<h3>👤 Patient Details</h3>
+
+<input name="name" placeholder="Patient Name" required>
+<input name="age" placeholder="Age" required>
+
+<select name="gender">
+<option>Male</option>
+<option>Female</option>
+<option>Other</option>
+</select>
+
+<br><br>
+
+<input type="file" name="file" required>
+
+<br><br>
+
+<button type="submit">🔍 Predict</button>
+
+</form>
+
+{% if prediction %}
+
+<h2>Prediction: {{prediction}}</h2>
+<h3>Probability: {{probability}}</h3>
+
+<img src="/{{image}}">
+<img src="/{{roi}}">
+
+<br><br>
+
+<button onclick="downloadHistory()">
+📥 Download Patient History
+</button>
+
+<h3>Probability Range</h3>
+
+<table>
+<tr>
+<th>Class</th>
+<th>Range</th>
+</tr>
+
+<tr>
+<td>Normal</td>
+<td>0.000 – 0.400</td>
+</tr>
+
+<tr>
+<td>Benign</td>
+<td>0.401 – 0.700</td>
+</tr>
+
+<tr>
+<td>Malignant</td>
+<td>0.701 – 1.000</td>
+</tr>
+
+</table>
+
+{% endif %}
+
+</div>
+
+<script>
+
+function downloadHistory(){
+    window.location.href="/download_history";
+}
+
+</script>
+
+</body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lung Cancer Detection</title>
+
+<style>
+
+body{
+margin:0;
+font-family:'Segoe UI';
+background:#ffffff;
+color:#333;
+}
+
+.container{
+width:85%;
+margin:40px auto;
+background:#ffffff;
+padding:30px;
+border-radius:20px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+text-align:center;
+}
+
+h2{
+color:#2e7d32;
+}
+
+input,select{
+padding:12px;
+margin:10px;
+border-radius:8px;
+border:1px solid #ccc;
+background:#f5f5f5;
+}
+
+button{
+padding:12px 25px;
+background:linear-gradient(45deg,#4CAF50,#81C784);
+border:none;
+border-radius:10px;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:linear-gradient(45deg,#388E3C,#66BB6A);
+}
+
+img{
+width:280px;
+border-radius:15px;
+margin:10px;
+}
+
+table{
+margin:auto;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+td,th{
+border:1px solid #ccc;
+padding:12px;
+}
+
+th{
+background:#4CAF50;
+color:white;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>🧠 Lung Cancer Detection System</h2>
+
+<form method="POST" action="/predict" enctype="multipart/form-data">
+
+<h3>👤 Patient Details</h3>
+
+<input name="name" placeholder="Patient Name" required>
+
+<input name="age" placeholder="Age" required>
+
+<select name="gender">
+<option>Male</option>
+<option>Female</option>
+<option>Other</option>
+</select>
+
+<br><br>
+
+<input type="file" name="file" required>
+
+<br><br>
+
+<button type="submit">🔍 Predict</button>
+
+</form>
+
+{% if prediction %}
+
+<h2>Prediction: {{prediction}}</h2>
+
+<h3>Probability: {{probability}}</h3>
+
+<img src="/{{image}}">
+<img src="/{{roi}}">
+
+<h3>Probability Range</h3>
+
+<table>
+
+<tr>
+<th>Class</th>
+<th>Range</th>
+</tr>
+
+<tr>
+<td>Normal</td>
+<td>0.000 – 0.400</td>
+</tr>
+
+<tr>
+<td>Benign</td>
+<td>0.401 – 0.700</td>
+</tr>
+
+<tr>
+<td>Malignant</td>
+<td>0.701 – 1.000</td>
+</tr>
+
+</table>
+
+{% endif %}
+
+</div>
+
+</body>
+</html>
